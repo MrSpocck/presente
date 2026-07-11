@@ -544,7 +544,7 @@ Não precisa ser perfeito. Precisa ser verdadeiro.</div>
     <h2 class="reveal">Nossa música</h2>
     <p class="sub reveal">ela já está tocando desde que você abriu a carta</p>
     <div class="player-frame reveal">
-      <iframe id="spotify-visible" style="border-radius:10px" src="https://open.spotify.com/embed/track/27Es7REkNYsWCMBoIbmwCW?si=a63332f43a8e40aa?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      <iframe id="spotify-visible" style="border-radius:10px" src="https://open.spotify.com/embed/track/27Es7REkNYsWCMBoIbmwCW?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </div>
     <div class="music-status reveal"><span class="music-dot"></span> tocando</div>
   </section>
@@ -569,7 +569,7 @@ Não precisa ser perfeito. Precisa ser verdadeiro.</div>
   const spotifyFrame = document.getElementById('spotify-frame');
 
   // TROQUE pelo ID da faixa do Spotify (Compartilhar > Copiar link da faixa; o código vem depois de /track/ e antes do "?")
-  const SPOTIFY_TRACK_ID = "27Es7REkNYsWCMBoIbmwCW?si=a63332f43a8e40aa";
+  const SPOTIFY_TRACK_ID = "27Es7REkNYsWCMBoIbmwCW";
   const spotifyEmbedURL = `https://open.spotify.com/embed/track/${SPOTIFY_TRACK_ID}?utm_source=generator&autoplay=1`;
 
   envelope.addEventListener('click', () => {

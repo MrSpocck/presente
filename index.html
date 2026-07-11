@@ -374,6 +374,52 @@
     max-width: 460px;
     margin: 0 auto;
   }
+  .mp3-player{
+    background: var(--wine);
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .mp3-btn{
+    flex: 0 0 auto;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--gold-bright);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--wine-deep);
+    cursor: pointer;
+    transition: transform .2s ease, background .2s ease;
+  }
+  .mp3-btn:hover{ background: var(--cream); transform: scale(1.06); }
+  .mp3-btn:active{ transform: scale(0.96); }
+  .mp3-progress-wrap{
+    flex: 1 1 auto;
+    height: 6px;
+    background: rgba(243,234,217,0.25);
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+  }
+  .mp3-progress-bar{
+    height: 100%;
+    width: 0%;
+    background: var(--gold-bright);
+    border-radius: 3px;
+    transition: width .1s linear;
+  }
+  .mp3-time{
+    flex: 0 0 auto;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--cream);
+    min-width: 38px;
+    text-align: right;
+  }
   .music-status{
     margin-top: 16px;
     font-family: 'Cormorant Garamond', serif;
@@ -459,10 +505,8 @@
   </div>
 </div>
 
-<!-- ============ SPOTIFY (oculto, é o que efetivamente toca o som) ============ -->
-<div id="spotify-hidden" style="position:fixed; bottom:-200px; left:0; width:1px; height:1px; overflow:hidden;">
-  <iframe id="spotify-frame" src="" width="300" height="80" frameBorder="0" allow="autoplay; encrypted-media" loading="lazy"></iframe>
-</div>
+<!-- ============ ÁUDIO LOCAL (trilha.mp3) ============ -->
+<audio id="bg-audio" src="trilha.mp3" preload="auto" loop></audio>
 
 <!-- ============ MAIN CONTENT ============ -->
 <div class="paper">
@@ -530,12 +574,11 @@
     <span class="eyebrow reveal">A parte mais importante</span>
     <h2 class="reveal">Para você, com carinho</h2>
     <div class="letter-paper reveal">
-      <div class="letter-text">Escreva aqui sua carta.
+      <div class="letter-text">Meu amor❤️,
 
-Pode falar sobre como vocês se conheceram, o que essa pessoa significa pra você, um momento específico que você nunca esquece, ou simplesmente o que você sente agora.
-
-Não precisa ser perfeito. Precisa ser verdadeiro.</div>
-      <div class="signature">— seu nome</div>
+Eu sei que nos conhecemos a pouco tempo, mas sabe quando algo foi feito por Deus, a gente sabe que é verdadeiro, é recíproco, isso é nosso amor, nasceu de muito construção, muito diálogo, e muita risada Kkkk foi inesperado, mas foi a melhor coisa que me aconteceu, e seu tenho fé que vai como foi nosso primeiro mês juntos, vamos fazer isso por muito tempo... Eu sinto que quando estou com você, nada pode me deixar pra baixo, porque você não permite que isso acontece, minha maior alegria é chegar dia de semana, que eu sei que vou pode te ver, te abraçar, te beijar, nada me deixa mais feliz, mas por outro lado, sinto saudades quando vc vai no fds, fico apenas na esperança de pode te ver uma outra vez novamente... Quero que saiba que estarei sempre aqui por você, meu maior bem, meu grande amor, que apesar das diferenças, nunca será um obstáculo para nossa felicidade. Enfim, te amo muito mesmo, pra sempre, obrigado por tanto em tão pouco tempo, com muito amor...
+</div>
+      <div class="signature">— Seu Ursão 🐻</div>
     </div>
   </section>
 
@@ -544,7 +587,16 @@ Não precisa ser perfeito. Precisa ser verdadeiro.</div>
     <h2 class="reveal">Nossa música</h2>
     <p class="sub reveal">ela já está tocando desde que você abriu a carta</p>
     <div class="player-frame reveal">
-      <iframe id="spotify-visible" style="border-radius:10px" src="https://open.spotify.com/embed/track/27Es7REkNYsWCMBoIbmwCW?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      <div class="mp3-player">
+        <button id="playPauseBtn" class="mp3-btn" aria-label="Pausar ou tocar música">
+          <svg id="iconPause" viewBox="0 0 24 24" width="20" height="20"><rect x="6" y="4" width="4" height="16" fill="currentColor"/><rect x="14" y="4" width="4" height="16" fill="currentColor"/></svg>
+          <svg id="iconPlay" viewBox="0 0 24 24" width="20" height="20" style="display:none"><polygon points="6,4 20,12 6,20" fill="currentColor"/></svg>
+        </button>
+        <div class="mp3-progress-wrap" id="progressWrap">
+          <div class="mp3-progress-bar" id="progressBar"></div>
+        </div>
+        <div class="mp3-time" id="timeDisplay">0:00</div>
+      </div>
     </div>
     <div class="music-status reveal"><span class="music-dot"></span> tocando</div>
   </section>
@@ -566,18 +618,58 @@ Não precisa ser perfeito. Precisa ser verdadeiro.</div>
   // --- Envelope open + dispara a música ---
   const envelope = document.getElementById('envelope');
   const gate = document.getElementById('gate');
-  const spotifyFrame = document.getElementById('spotify-frame');
-
-  // TROQUE pelo ID da faixa do Spotify (Compartilhar > Copiar link da faixa; o código vem depois de /track/ e antes do "?")
-  const SPOTIFY_TRACK_ID = "27Es7REkNYsWCMBoIbmwCW";
-  const spotifyEmbedURL = `https://open.spotify.com/embed/track/${SPOTIFY_TRACK_ID}?utm_source=generator&autoplay=1`;
+  const audio = document.getElementById('bg-audio');
 
   envelope.addEventListener('click', () => {
     envelope.classList.add('open');
     // o clique do usuário é a interação que autoriza áudio no navegador —
-    // por isso o iframe só recebe o src (e começa a tocar) aqui dentro do handler de clique
-    spotifyFrame.src = spotifyEmbedURL;
+    // por isso o play() só é chamado aqui dentro do handler de clique
+    audio.play().catch(() => {
+      // se por algum motivo o navegador ainda bloquear, o botão de play manual na seção de música resolve
+    });
     setTimeout(() => { gate.classList.add('hidden'); }, 750);
+  });
+
+  // --- Player customizado ---
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const iconPlay = document.getElementById('iconPlay');
+  const iconPause = document.getElementById('iconPause');
+  const progressWrap = document.getElementById('progressWrap');
+  const progressBar = document.getElementById('progressBar');
+  const timeDisplay = document.getElementById('timeDisplay');
+
+  function formatTime(sec){
+    if(isNaN(sec)) return "0:00";
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${String(s).padStart(2,'0')}`;
+  }
+
+  playPauseBtn.addEventListener('click', () => {
+    if(audio.paused){
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  });
+
+  audio.addEventListener('play', () => {
+    iconPlay.style.display = 'none';
+    iconPause.style.display = 'block';
+  });
+  audio.addEventListener('pause', () => {
+    iconPlay.style.display = 'block';
+    iconPause.style.display = 'none';
+  });
+  audio.addEventListener('timeupdate', () => {
+    const pct = (audio.currentTime / audio.duration) * 100 || 0;
+    progressBar.style.width = pct + '%';
+    timeDisplay.textContent = formatTime(audio.currentTime);
+  });
+  progressWrap.addEventListener('click', (e) => {
+    const rect = progressWrap.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = pct * audio.duration;
   });
 
   // --- Scroll reveal (seções) ---
